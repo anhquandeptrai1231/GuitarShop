@@ -6,6 +6,7 @@ namespace GuitarShop.Repository.Interfaces
     {
 
         Task<IEnumerable<Product>> GetAllAsync();
+        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
         Task<Product?> GetByIdAsync(int id);
         Task AddAsync(Product product);
         void Update(Product product);

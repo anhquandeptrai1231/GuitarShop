@@ -62,7 +62,13 @@ namespace GuitarShop.Controllers
                 await _productService.DeleteProductAsync(id);
                 return Ok("Deleted successfully");
             }
+        [HttpGet("getbycategoryid")]
+        public async Task<IActionResult> GetProductsByCategory([FromQuery] int categoryId)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(categoryId);
+            return Ok(products);
         }
+    }
 
 
     }

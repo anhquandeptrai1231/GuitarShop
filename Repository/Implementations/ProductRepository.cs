@@ -47,5 +47,13 @@ namespace GuitarShop.Repository.Implementations
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
+        {
+            return await _context.Products
+      .Where(p => p.CategoryId == categoryId)
+      .Include(p => p.Category)
+      .ToListAsync();
+        }
     }
 }

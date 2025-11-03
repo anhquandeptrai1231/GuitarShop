@@ -54,5 +54,21 @@ namespace GuitarShop.Services.Implementations
             _productRepository.Delete(product);
             await _productRepository.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<ProductDTO>> GetProductsByCategoryAsync(int categoryId)
+        {
+            var products = await _productRepository.GetProductsByCategoryAsync(categoryId);
+
+            return products.Select(p => new ProductDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                ImageUrl = p.ImageUrl,
+                CategoryName = p.Category?.Name
+            });
+        }
     }
-}
+    }
+

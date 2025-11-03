@@ -1,6 +1,6 @@
 using AutoMapper;
 
-using FluentValidation;
+
 using FluentValidation.AspNetCore;
 using GuitarShop.AutoMapper;
 using GuitarShop.Data;
@@ -8,11 +8,14 @@ using GuitarShop.Middleware;
 
 using GuitarShop.Repository.Implementations;
 using GuitarShop.Repository.Interfaces;
-using GuitarShop.Response;
+
 using GuitarShop.Services.Implementations;
 using GuitarShop.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +31,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductServices, ProductService>();
+builder.Services.AddScoped<IAuthServices, AuthServices>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+            )
+        };
+    });
 
 
 var app = builder.Build();
