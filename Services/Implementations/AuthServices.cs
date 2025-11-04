@@ -1,4 +1,5 @@
 ﻿using GuitarShop.Data;
+using GuitarShop.DTOs;
 using GuitarShop.Models;
 using GuitarShop.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -19,26 +20,31 @@ namespace GuitarShop.Services.Implementations
             _context = context;
             _config = config;
         }
-        public async Task<string?> LoginAsync(string username, string password)
+        public async Task<LoginResultDTO?> LoginAsync(string username, string password)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Username == username);
-            if (user == null) return null;
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == username);
 
-            // Kiểm tra password
-            bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-            if (!isValid) return null;
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                return null;
 
-            // Sinh JWT token
-            return GenerateJwtToken(user);
+           
+            var token = GenerateJwtToken(user); 
+
+            return new LoginResultDTO
+            {
+                Token = token,
+                UserId = user.Id,
+                Username = user.Username
+            };
         }
 
         public async Task<string> RegisterAsync(string username, string password, string email)
         {
-            // Kiểm tra username tồn tại
+         
             if (_context.Users.Any(u => u.Username == username))
                 throw new Exception("Username already exists");
 
-            // Hash mật khẩu
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
             var user = new User

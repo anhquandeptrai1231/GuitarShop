@@ -41,12 +41,17 @@ namespace GuitarShop.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO request)
         {
-            var token = await _authService.LoginAsync(request.Username, request.Password);
+            var result = await _authService.LoginAsync(request.Username, request.Password);
 
-            if (token == null)
+            if (result == null)
                 return Unauthorized(new { message = "Invalid username or password" });
 
-            return Ok(new { token });
+            return Ok(new
+            {
+                token = result.Token,
+                userId = result.UserId,
+                username = result.Username
+            });
         }
     }
 }
